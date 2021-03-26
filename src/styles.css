@@ -1,0 +1,11 @@
+.App {
+  font-family: sans-serif;
+}
+
+label {
+  display: block;
+}
+
+.control {
+  margin-top: 1rem;
+}
