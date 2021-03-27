@@ -10,15 +10,6 @@ export default function App(props) {
     0.3
   );
 
-  const onClickStartButton = (event) => {
-    setStarting(!starting);
-  };
-  const onChangePulwmSlider = (event) => {
-    setPulwm(event.target.value);
-  };
-  const onChangeFreqSlider = (event) => {
-    setFreq(event.target.value);
-  };
   const onChangeXYSlider = (values) => {
     setFreq(values.x);
     setPulwm(values.y);
@@ -70,7 +61,7 @@ export default function App(props) {
         />
       </div>
       <div className="control">
-        <button onClick={onClickStartButton}>
+        <button onClick={() => setStarting(!starting)}>
           {starting ? "stop" : "start"}
         </button>
       </div>
