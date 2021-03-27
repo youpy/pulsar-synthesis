@@ -10,11 +10,6 @@ export default function App(props) {
     0.3
   );
 
-  const onChangeXYSlider = (values) => {
-    setFreq(values.x);
-    setPulwm(values.y);
-  };
-
   return (
     <div className="App">
       <h1>Pulsar Synthesis</h1>
@@ -57,7 +52,10 @@ export default function App(props) {
           xstep={0.001}
           ystep={0.001}
           yreverse={true}
-          onChange={onChangeXYSlider}
+          onChange={(values) => {
+            setFreq(values.x);
+            setPulwm(values.y);
+          }}
         />
       </div>
       <div className="control">
