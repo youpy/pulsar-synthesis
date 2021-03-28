@@ -59,7 +59,13 @@ export default function App(props) {
         />
       </div>
       <div className="control">
-        <button onClick={() => setStarting(!starting)}>
+        <button
+          onClick={() => {
+            setStarting(!starting);
+            setFreq(freq);
+            setPulwm(pulwm);
+          }}
+        >
           {starting ? "stop" : "start"}
         </button>
       </div>
