@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { fft } from "@signalprocessing/transforms";
 
 const n = 4096;
@@ -24,53 +24,63 @@ const createPeriodicWave = (ac, pulwm, n) => {
 export default function usePulsar(ac, defaultPulwm, defaultFreq) {
   const [pulwm, setPulwm] = useState(defaultPulwm);
   const [freq, setFreq] = useState(defaultFreq);
-  const [osc, setOsc] = useState(null);
   const [starting, setStarting] = useState(false);
-  const _setPulwm = (pulwm) => {
-    setPulwm(pulwm);
+  const oscRef = useRef(null);
 
-    if (osc) {
-      const pw = createPeriodicWave(ac, pulwm ** 5, n);
+  const _setPulwm = useCallback(
+    (pulwm) => {
+      setPulwm(pulwm);
 
-      osc.setPeriodicWave(pw);
-    }
-  };
-  const _setFreq = (freq) => {
-    // freq: 0.0 - 1.0
-    const f = freq ** 5 * maxFreq;
-
-    setFreq(freq);
-
-    if (osc) {
-      osc.frequency.value = f;
-    }
-  };
-  const _setStarting = (value) => {
-    if (value) {
-      if (!osc) {
-        const o = ac.createOscillator();
+      if (oscRef.current) {
         const pw = createPeriodicWave(ac, pulwm ** 5, n);
 
-        o.setPeriodicWave(pw);
-        o.connect(ac.destination);
-        o.frequency.value = freq ** 5 * maxFreq;
-        o.start();
-
-        setOsc(o);
+        oscRef.current.setPeriodicWave(pw);
       }
+    },
+    [setPulwm]
+  );
+  const _setFreq = useCallback(
+    (freq) => {
+      // freq: 0.0 - 1.0
+      const f = freq ** 5 * maxFreq;
 
-      setStarting(true);
-    } else {
-      if (osc) {
-        osc.stop();
-        osc.disconnect();
+      setFreq(freq);
 
-        setOsc(null);
+      if (oscRef.current) {
+        oscRef.current.frequency.value = f;
       }
+    },
+    [setFreq]
+  );
+  const _setStarting = useCallback(
+    (value) => {
+      if (value) {
+        if (!oscRef.current) {
+          const o = ac.createOscillator();
+          const pw = createPeriodicWave(ac, pulwm ** 5, n);
 
-      setStarting(false);
-    }
-  };
+          o.setPeriodicWave(pw);
+          o.connect(ac.destination);
+          o.frequency.value = freq ** 5 * maxFreq;
+          o.start();
+
+          oscRef.current = o;
+        }
+
+        setStarting(true);
+      } else {
+        if (oscRef.current) {
+          oscRef.current.stop();
+          oscRef.current.disconnect();
+
+          oscRef.current = null;
+        }
+
+        setStarting(false);
+      }
+    },
+    [setStarting]
+  );
 
   return [freq, _setFreq, pulwm, _setPulwm, starting, _setStarting];
 }
